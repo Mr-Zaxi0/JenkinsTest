@@ -1,31 +1,49 @@
-pipeline {
-agent any
-stages {
-stage('Checkout') {
-steps {
-git branch: 'main', url: ' https://github.com/your_github_username/8.2CDevSecOps.git'
+
+pipeline { 
+  agent any 
+ 
+  stages { 
+    stage('Checkout') { 
+      steps { 
+        git branch: 'main', url: 'https://github.com/Mr-Zaxi0/JenkinsTest' 
+      } 
+    } 
+ 
+    stage('Install Dependencies') { 
+      steps { 
+        bat 'npm install' 
+      } 
+    } 
+ 
+    stage('Run Tests') { 
+      steps { 
+        bat 'npm test || exit /b 0' // Allows pipeline to continue despite test failures 
+      } 
+    } 
+
+
+    stage('Generate Coverage Report') { 
+      steps { 
+        // Ensure coverage report exists 
+       bat 'npm run coverage || exit /b 0'
+      } 
+    } 
+ 
+    stage('NPM Audit (Security Scan)') { 
+      steps { 
+        bat 'npm audit || exit /b 0' // This will show known CVEs in the output 
+      } 
+    } 
+   stage('SonarCloud Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    bat '''
+                        sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat
+                    '''
+                }
+            }
+        }
+  } 
 }
-}
-stage('Install Dependencies') {
-steps {
-bat 'npm install'
-}
-}
-stage('Run Tests') {
-steps {
-bat 'npm test || true' // Allows pipeline to continue despite test failures
-}
-}
-stage('Generate Coverage Report') {
-steps {
-// Ensure coverage report exists
-bat 'npm run coverage || true'
-}
-}
-stage('NPM Audit (Security Scan)') {
-steps {
-bat 'npm audit || true' // This will batow known CVEs in the output
-}
-}
-}
-}
+       
+    
