@@ -33,7 +33,15 @@ pipeline {
         bat 'npm audit || exit /b 0' // This will show known CVEs in the output 
       } 
     } 
-   
+   stage('SonarCloud Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    bat '''
+                        sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat
+                    '''
+                }
+            }
+        }
   } 
 }
        
